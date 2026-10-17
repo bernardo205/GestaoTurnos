@@ -20,6 +20,8 @@ The project also serves as a professional portfolio demonstrating application de
 |---|---|
 | Basic shift registration, history, editing and deletion | Available in the current application |
 | Statistics and charts | Available in the current application |
+| Number of employees supported in current use | Currently working for one employee only |
+| Additional work positions | To be identified and specified |
 | Detailed requirements for scheduling, roles, qualifications and leave | In planning |
 | Implementation of the expanded workflows | Not yet confirmed |
 | Legal and contractual validation of working-time and vacation rules | Pending |
@@ -39,6 +41,8 @@ The roadmap is an indicative sequence of work. Phases may be adjusted as require
 - [x] Identify legal/contractual questions and unresolved decisions.
 - [ ] Resolve the remaining scheduling, evaluation and request-workflow questions.
 - [ ] Review the existing code and database before choosing the implementation approach.
+- [ ] Clarify the requirements for supporting more than one employee.
+- [ ] Collect the names and details of the additional work positions to be added.
 
 ### Phase 2 — Data model, access control and foundations
 
@@ -80,6 +84,7 @@ The roadmap is an indicative sequence of work. Phases may be adjusted as require
 **Status: Planned**
 
 - [ ] Preserve the 16 existing work positions.
+- [ ] Confirm and add the additional work positions once their names and requirements have been provided.
 - [ ] Manage employee qualifications by position.
 - [ ] Authorise trainers for specific positions.
 - [ ] Record training progress and evaluations.
@@ -111,6 +116,8 @@ The roadmap is an indicative sequence of work. Phases may be adjusted as require
 - [ ] Review the README and repository presentation for public sharing.
 
 ## Current implementation
+
+The current application is currently being used for **one employee only**. Supporting multiple employees is a requirement to clarify and implement; it should not be understood as an existing capability.
 
 The current application provides:
 
