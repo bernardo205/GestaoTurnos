@@ -39,7 +39,8 @@ The roadmap is an indicative sequence of work. Phases may be adjusted as require
 - [x] Record the initial requirements for weekly schedules, working hours, breaks and publication.
 - [x] Define the initial scope for qualifications, training, days off and vacations.
 - [x] Identify legal/contractual questions and unresolved decisions.
-- [ ] Resolve the remaining scheduling, evaluation and request-workflow questions.
+- [x] Consolidate the decisions confirmed so far for scheduling, breaks, publication, requests and history.
+- [ ] Resolve the remaining questions, including whether the 30-minute break must be continuous or may be split, detailed permissions and notification channels.
 - [ ] Review the existing code and database before choosing the implementation approach.
 - [ ] Clarify the requirements for supporting more than one employee.
 - [ ] Collect the names and details of the additional work positions to be added.
@@ -61,17 +62,18 @@ The roadmap is an indicative sequence of work. Phases may be adjusted as require
 
 - [ ] Create weekly schedules manually for Monday–Sunday.
 - [ ] Support overnight shifts.
-- [ ] Apply the agreed full-time and part-time contractual-hour rules.
-- [ ] Validate working hours and breaks according to the final, legally reviewed rules.
+- [ ] Apply the final full-time and part-time contractual-hour rules once exact contractual limits are confirmed.
+- [ ] Validate contractual hours and the five-hour/30-minute break rule; confirm whether the break must be continuous or may be split.
 - [ ] Add manual publication for authorised managers.
-- [ ] Record changes to published schedules and whether each change has been communicated.
+- [x] Keep a history of changes to the planned schedule, including previous/new values, actor and timestamp.
+- [ ] Notify the affected employee whenever their published schedule changes and record the communication.
 - [ ] Provide a way to identify pending communications.
 
 ### Phase 4 — Employee requests and vacations
 
 **Status: Planned**
 
-- [ ] Implement days-off requests and manager/submanager decisions.
+- [ ] Implement days-off requests and manager/submanager decisions, including notifications and automatic marking of an approved day off.
 - [ ] Implement vacation requests and manager/submanager decisions.
 - [ ] Show approved vacations while preparing weekly schedules without silently rewriting a published schedule.
 - [ ] Add in-app and email notifications with visible handling of delivery failures.
@@ -83,12 +85,12 @@ The roadmap is an indicative sequence of work. Phases may be adjusted as require
 
 **Status: Planned**
 
-- [ ] Preserve the 16 existing work positions.
+- [ ] Confirm the definitive list of work positions before finalising the position catalogue.
 - [ ] Confirm and add the additional work positions once their names and requirements have been provided.
 - [ ] Manage employee qualifications by position.
 - [ ] Authorise trainers for specific positions.
 - [ ] Record training progress and evaluations.
-- [ ] Require manager/submanager validation before an employee is considered autonomous at a position.
+- [ ] Require training and a positive FV evaluation before autonomous work at a position; an unsuccessful FV requires repeating training.
 - [ ] Add ad-hoc quality evaluations without automatically granting qualifications.
 - [ ] Define evaluation criteria, scales and visibility before implementation.
 
@@ -117,7 +119,7 @@ The roadmap is an indicative sequence of work. Phases may be adjusted as require
 
 ## Current implementation
 
-The current application is currently being used for **one employee only**. Supporting multiple employees is a requirement to clarify and implement; it should not be understood as an existing capability.
+The current application is currently being used for **one employee only**. Supporting multiple employees is a requirement to implement; it should not be understood as an existing capability.
 
 The current application provides:
 
@@ -152,28 +154,29 @@ Permissions must be enforced in backend logic, not only by hiding interface cont
 - Publication uses an explicit **“Publicar horário”** action and is restricted to the restaurant manager and submanagers.
 - Employees can view all employees' schedules but cannot edit them solely because they have viewing access.
 - Overnight shifts must be supported.
-- Changes to a published schedule must record what changed, who changed it and when.
+- Changes to a published schedule must record the previous value, new value, who changed it and when.
+- The employee affected by a change to a published schedule must always be notified.
 - After a change, management must answer: **“Esta alteração já foi comunicada ao funcionário?”**
   - **Yes:** record that the change was communicated.
   - **No:** mark communication as pending.
 - Record who confirmed the communication status and when. There is no employee acceptance/rejection workflow.
-- Keep the current schedule and an audit/change log. Keeping every complete historical schedule version has not been selected as a requirement.
+- The application stores planned schedules only in this phase, with a history of changes (previous value, new value, actor and timestamp). It does not introduce a separate actual-hours module.
 - The initial work position and position changes during service are managed outside the application and must not be recorded as operational position changes in the app.
 
 ### Working hours and breaks
 
 | Contract type | Contractual weekly hours | Planned schedule rule |
-|---|---:|---|
-| Full-time | Exactly 40 hours | 40 hours is the weekly target. |
-| Part-time | 20–38 hours, according to the contract | Planned hours may vary between weeks; contractual hours remain the reference and must not change automatically. |
+|---|---|---|
+| Full-time | To be confirmed from the contract | Planned hours must follow the employee's confirmed contract. Changes to a full-time schedule must be communicated to the employee. |
+| Part-time | To be confirmed from the contract | Planned hours must follow the employee's confirmed contract; do not assume a universal range before requirements are confirmed. |
 
 Additional agreed rules:
 
-- Hours below the contractual target trigger a warning but do not, by themselves, block publication.
-- Exceeding an applicable maximum blocks publication.
-- A work period must not exceed five consecutive hours without a break of at least 30 minutes, according to the currently defined business rule.
-- Breaks reduce net working time.
-- The exact timing of the break, whether planned or actual breaks will be recorded, and the applicable rest periods still need to be finalised.
+- Hours below the contractual target trigger a warning and require confirmation before proceeding.
+- Exceeding the applicable contractual-hour limit blocks the schedule.
+- A work period must not exceed five consecutive hours without a break of at least 30 minutes. The application must block a schedule that violates this rule.
+- Breaks are recorded in the planned schedule but **are not deducted** from the hours counted towards contractual hours.
+- It remains to be decided whether the minimum 30-minute break must be continuous or may be split into shorter breaks. This rule is separate from the contractual-hour calculation.
 
 **Legal/contractual validation required:** verify the working-time rules against applicable Portuguese labour law, the individual contract and any applicable collective agreement before implementation. Product requirements alone do not establish legal compliance.
 
@@ -199,32 +202,38 @@ The following 16 existing positions must be retained without changing their name
 16. SAM
 
 - Only the restaurant manager and submanagers may change position qualifications.
+- An employee may be assigned manually to a different position from one shift to another, provided they have the required training and a positive FV evaluation for that position.
+- The shift manager selects the position manually; the application should indicate which employees are trained/qualified for the selected position.
 - An employee may work autonomously only at positions for which they are qualified.
 - Trainer authorisation is position-specific.
 - An employee in training must be accompanied by a trainer authorised for that position until autonomy has been demonstrated and validated.
+- Training and FV evaluations can be performed by an authorised trainer, manager or shift manager.
+- FV is an assessment of readiness to work autonomously and service quality. A positive FV is required for autonomy; a non-positive FV means the employee must repeat training.
 - The trainer evaluates progress and recommends autonomy. The restaurant manager or a submanager validates it.
 - Quality evaluations or attendance must not automatically grant a qualification.
 
 ### Training and quality evaluations
 
 - Managers, submanagers and shift managers can oversee training according to their responsibilities.
-- Training records should include the trainee, position, authorised trainer, dates, evaluations and final result.
+- Employee records should include name, employee number, admission date, completed training and full-time/part-time status. Training records should include the trainee, position, trainer, dates, FV evaluations and final result.
 - The first version supports ad-hoc quality evaluations.
 - Formal evaluations twice per month are a possible future enhancement, not a first-version requirement.
 - Evaluation criteria, scale, visibility and correction history still need to be defined.
 
 ### Days off
 
-- Employees can request a specific day off.
-- Requests appear in notifications and during preparation of the relevant week.
-- The restaurant manager and submanagers can approve or reject requests. Shift managers cannot.
-- Approval does not automatically modify a schedule; management must account for the request while preparing it.
+- Any user, including users with management or training roles, can request a day off.
+- The restaurant manager and submanagers can approve or reject requests. Users cannot approve their own requests.
+- Management receives a notification of a request, and the employee receives a notification of the decision; exact channels remain to be decided.
+- When approved, the requested day is automatically marked as a day off.
 - Days-off requests are separate from vacation requests.
 - Requests should remain available with a status distinguishing pending from resolved decisions.
 
 The full status lifecycle and employee-facing request history remain to be finalised.
 
 ### Vacations
+
+- The existing vacation-request functionality is to remain unchanged for now. The following items are existing notes/planning context, not authorisation to change the current vacation workflow.
 
 - Employees submit a request with a start date and end date.
 - Management sees the employee, dates, status and approve/reject actions.
@@ -233,7 +242,7 @@ The full status lifecycle and employee-facing request history remain to be final
 - Overlapping requests generate a warning, but management makes the final decision.
 - Approved vacations appear during schedule preparation. Approval does not automatically alter an already-published schedule.
 - Employees cannot cancel approved vacations themselves; they must contact management.
-- The application calculates an initial balance from the admission date and available contract data. The manager confirms or corrects it.
+- For the initial balance, the application proposes a calculation and the manager confirms or corrects it. Historical vacation information must be preserved.
 - Manual corrections record the old value, new value, responsible person, date and reason.
 - Historical periods may be entered when dates are known and verifiable. Unknown periods must not be invented or presented as confirmed.
 - The reference period is the calendar year, 1 January to 31 December.
@@ -274,14 +283,15 @@ Historical data must distinguish confirmed information from unknown or unverifie
 
 These items are not yet finalised and must not be treated as implemented features:
 
-- Whether an incomplete weekly schedule can be published.
+- Exact contractual-hour limits for full-time and part-time employees.
 - Who may edit a published schedule, beyond the confirmed restriction on who may publish it.
 - How pending communication is listed and how long audit records are retained.
-- Exact timing of the five-hour break rule and whether planned or actual breaks are recorded.
-- Legal/contractual validation of part-time weekly variation, working-time limits and rest periods.
+- Whether the minimum 30-minute break must be continuous or can be split into shorter breaks.
+- Legal/contractual validation of working-time limits and rest periods.
 - Evaluation criteria, scale, visibility and correction process.
 - Full request-status lifecycle and whether employees can see their own request history.
 - Employee exit dates, contract changes and related account/balance lifecycle.
+- Detailed permissions for each role and the notification channels/events.
 - Detailed vacation-calculation edge cases, subject to later legal/contractual validation.
 
 ## Technology and architecture
