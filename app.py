@@ -46,24 +46,23 @@ def construir_mapa_cores(nomes, paleta):
         for i, nome in enumerate(nomes_ordenados)
     }
 
-
-def mostrar_legenda_cores(mapa, titulo):
-    """Mostra pequenos chips com o nome e a cor respetiva."""
-    st.markdown(f"**{titulo}**")
-    chips = " ".join(
-        f"<span style='"
-        f"display:inline-block;"
-        f"padding:4px 10px;"
-        f"margin:3px 4px 3px 0;"
-        f"border-radius:14px;"
-        f"background:{cor};"
-        f"color:white;"
-        f"font-size:0.85em;"
-        f"font-weight:500;"
-        f"'>{nome}</span>"
-        for nome, cor in mapa.items()
-    )
-    st.markdown(chips, unsafe_allow_html=True)
+#def mostrar_legenda_cores(mapa, titulo):
+#    """Mostra pequenos chips com o nome e a cor respetiva."""
+#    st.markdown(f"**{titulo}**")
+#    chips = " ".join(
+#        f"<span style='"
+#        f"display:inline-block;"
+#        f"padding:4px 10px;"
+#        f"margin:3px 4px 3px 0;"
+#        f"border-radius:14px;"
+#        f"background:{cor};"
+#        f"color:white;"
+#        f"font-size:0.85em;"
+#        f"font-weight:500;"
+#        f"'>{nome}</span>"
+#        for nome, cor in mapa.items()
+#    )
+#    st.markdown(chips, unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------
@@ -358,22 +357,22 @@ with aba_estatisticas:
                 "Turnos por gerente",
                 mapa_cores_gerentes,
             )
-            st.plotly_chart(fig_gerentes, width="stretch")
+            st.plotly_chart(fig_gerentes, width="stretch")#
 
-        st.divider()
+        #st.divider()
 
-        st.subheader("🎨 Legenda de cores")
-        col_lg, col_lp = st.columns(2)
-        with col_lg:
-            mostrar_legenda_cores(
-                mapa_cores_gerentes,
-                "Gerentes",
-            )
-        with col_lp:
-            mostrar_legenda_cores(
-                mapa_cores_postos,
-                "Postos",
-            )
+        #st.subheader("🎨 Legenda de cores")
+        #col_lg, col_lp = st.columns(2)
+        #with col_lg:
+        #    mostrar_legenda_cores(
+        #        mapa_cores_gerentes,
+        #        "Gerentes",
+        #    )
+        #with col_lp:
+        #    mostrar_legenda_cores(
+        #        mapa_cores_postos,
+        #        "Postos",
+        #    )
 
         st.divider()
 
