@@ -7,8 +7,8 @@ This document starts Phase 2 of the roadmap. It proposes a normalized relational
 ## Design goals
 
 - Support multiple employees and accounts that can hold more than one role.
-- Keep planned schedules separate from work actually performed.
-- Preserve schedule changes and communication confirmations as auditable events.
+- Store the planned schedule and a history of edits; a separate actual-work/actual-hours module is out of scope for this phase.
+- Preserve planned-schedule changes (previous value, new value, actor and timestamp) and record that the affected employee was notified after a published schedule changes.
 - Keep work positions separate from a shift's operational assignment; position changes during service remain out of scope.
 - Preserve the legacy SQLite database and do not infer richer records from its limited data.
 - Keep the schema portable between SQLite and PostgreSQL where practical.
@@ -18,32 +18,32 @@ This document starts Phase 2 of the roadmap. It proposes a normalized relational
 ### People, accounts and permissions
 
 - **employee**: employee identity and lifecycle (name, optional email, admission date, optional end date, active state). Employment/contract terms should be separate dated records so changes do not overwrite history.
-- **employment_contract**: employee, contract type, contractual weekly hours, validity start/end. Validate type-specific limits in application logic until final requirements are approved.
+- **employment_contract**: employee, contract type (full-time/part-time), contractual weekly hours, validity start/end. Exact full-time and part-time hour limits are not yet confirmed and must not be hard-coded from assumptions.
 - **user_account**: login identity and account state, linked optionally to one employee. Authentication mechanism and identity provider are undecided; do not store plaintext passwords.
 - **role** and **account_role**: role catalogue and many-to-many assignment, allowing one account to hold several roles. Role names should be stable keys; authorization rules belong in backend code and need their own acceptance criteria.
 
 ### Positions, qualifications and training
 
 - **work_position**: stable ID, unique name, active state. Seed the 16 existing position names without renaming them; additional positions await confirmation.
-- **employee_qualification**: employee, position, state, effective dates, who recommended and who validated, and validation time. Do not grant qualification from training attendance or quality scores automatically.
+- **employee_qualification**: employee, position, state, effective dates, who recommended and who validated, and validation time. Autonomous assignment requires completed training and a positive FV evaluation. A non-positive FV requires repeat training; do not grant qualification from attendance or quality scores automatically.
 - **trainer_authorization**: trainer employee, position and validity period; only an authorized trainer may lead training for that position.
-- **training_record**: trainee, position, authorized trainer, start/end dates and outcome. Detailed evaluation fields and correction history await decisions on scale, visibility and review process.
+- **training_record**: trainee, position, trainer (which may be an authorised trainer, manager or shift manager), start/end dates, FV evaluation and outcome. A non-positive FV requires repeat training.
 - **quality_evaluation**: employee, evaluator, date, criteria/version, result and any correction history. Keep separate from qualification decisions. Criteria and visibility are unresolved.
 
 ### Planned schedule and actual work
 
 - **schedule_week**: Monday `week_start_date` (unique), state (`draft`/`published`), creator, publication actor/time, and a monotonically increasing revision. Whether incomplete weeks can be published remains unresolved.
 - **planned_shift**: schedule week, employee, start and end instants, created/updated by and timestamps. Store enough timezone information to interpret local shift times and overnight work. The application currently targets one restaurant; the canonical timezone and daylight-saving representation need confirmation before choosing concrete SQL types.
-- **planned_break**: planned shift, start/end, and ordering. Whether breaks are planned or actual, and exact rule semantics, remain open.
-- **actual_shift**: employee, optional link to planned shift, actual start/end and recording actor/time. Actual work must not silently rewrite the plan.
-- **actual_break**: actual shift, start/end and recording actor/time, conditional on a decision to record actual breaks.
-- **schedule_change**: schedule revision, affected shift, actor, timestamp, reason, and before/after values. Keep a separate communication confirmation with communicated/pending state, confirmer and confirmation time. The precise audit retention policy is unresolved.
+- **planned_break**: planned shift, start/end, and ordering. Breaks are recorded on the planned schedule but are not deducted from hours counted towards contractual hours. A work period must not exceed five consecutive hours without a break of at least 30 minutes; whether that break must be continuous or may be split remains unresolved.
+- **schedule_change**: affected planned shift/schedule, actor, timestamp, reason where provided, and before/after values. A separate communication record should capture whether the affected employee was notified, by whom and when. Changes to a published schedule always require notifying the affected employee.
+
+A separate `actual_shift`/`actual_break` model is not part of this phase: the selected approach is planned hours with an edit history, not a separate record of actual hours worked.
 
 Use half-open intervals (`start < end`, end excluded) for overlap checks. Represent overnight work with an end instant on the following date, not a negative duration. The final timezone and daylight-saving representation must be settled before implementation.
 
 ### Requests and vacation balances
 
-- **day_off_request**: employee, requested date, submission time, status and decision actor/time/reason. A decision does not modify a schedule automatically.
+- **day_off_request**: employee, requested date, submission time, status and decision actor/time/reason. Any user may request a day off, including management/training roles. Only a manager or submanager may decide; self-approval is forbidden. When approved, the date is automatically marked as a day off.
 - **vacation_request**: employee, inclusive date range, submission time, status and decision actor/time/reason. Overlap warns management but does not itself decide the request.
 - **vacation_balance_entry**: employee, calendar year, category (current-year/carry-over/adjustment/usage), quantity, effective date, actor and reason. Keep corrections and carry-over decisions as append-only entries rather than overwriting a single balance. Calculation rules and legal/contractual validation remain open.
 - **audit_event**: actor account, action, entity type/ID, timestamp, reason and before/after payload for significant changes. Avoid storing secrets or unnecessary personal data in audit payloads.
@@ -71,11 +71,11 @@ Request lifecycle values, employee visibility, cancellation and simultaneous-dec
 ## Decisions needed before implementation
 
 - Employment identity, email/login provider, account creation and employee departure behavior.
-- Contract types, effective dating, changes, part-time hours, maximum hours and legally validated rest/break rules.
-- Whether to store actual shifts and actual breaks in the first release, and who may enter/correct them.
+- Exact full-time and part-time contractual-hour limits, contract changes, and legal/contractual validation of the five-hour/30-minute break and rest rules.
+- Whether the minimum 30-minute break must be continuous or may be split into shorter breaks.
 - Timezone and daylight-saving behavior for overnight shifts.
-- Incomplete-week publication, editing rights after publication, and audit retention.
-- Request lifecycle, employee-facing history and duplicate/simultaneous decisions.
+- Publication must be blocked until the weekly schedule is complete and passes the agreed validations. Detailed editing rights after publication and audit retention remain to be finalised.
+- Request lifecycle, notification channels, employee-facing history and duplicate/simultaneous decisions.
 - Vacation accrual, carry-over, historical corrections and applicable legal/contractual interpretation.
 - Evaluation scale, visibility, corrections and the relationship between training and qualification.
 - Deployment database, backup/restore requirements and migration acceptance criteria.
