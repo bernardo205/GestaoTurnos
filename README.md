@@ -177,7 +177,7 @@ Additional agreed rules:
 - Exceeding the applicable contractual-hour limit blocks the schedule.
 - A work period must not exceed five consecutive hours without a break of at least 30 minutes. The application must block a schedule that violates this rule.
 - Breaks are recorded in the planned schedule but **are not deducted** from the hours counted towards contractual hours.
-- It remains to be decided whether the minimum 30-minute break must be continuous or may be split into shorter breaks. This rule is separate from the contractual-hour calculation.
+- The minimum 30-minute break must be **continuous and cannot be split**. This rule is separate from the contractual-hour calculation.
 
 **Legal/contractual validation required:** verify the working-time rules against applicable Portuguese labour law, the individual contract and any applicable collective agreement before implementation. Product requirements alone do not establish legal compliance.
 
