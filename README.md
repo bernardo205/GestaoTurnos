@@ -152,6 +152,7 @@ Permissions must be enforced in backend logic, not only by hiding interface cont
 - The schedule week runs from Monday to Sunday.
 - Managers and submanagers create schedules manually by selecting employees, days and working hours. Automatic schedule suggestions are outside the first version.
 - Publication uses an explicit **“Publicar horário”** action and is restricted to the restaurant manager and submanagers.
+- A weekly schedule cannot be published until it is complete and has passed validation of contractual hours, position qualifications and the five-hour/30-minute break rule.
 - Employees can view all employees' schedules but cannot edit them solely because they have viewing access.
 - Overnight shifts must be supported.
 - Changes to a published schedule must record the previous value, new value, who changed it and when.
